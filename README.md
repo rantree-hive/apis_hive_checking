@@ -26,7 +26,7 @@ You can install these dependencies via `pip` using the following command:
 
 ```bash
 pip install pandas argparse beem requests openpyxl
-
+```
 
 ## Usage
 Command Line Arguments
