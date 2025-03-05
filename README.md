@@ -61,7 +61,7 @@ The script generates a TSV file (users_stats.tsv) containing the following colum
 - Username: The Hive username
 - HP: Hive Power
 - Reputation: User reputation score
-- Rewards: Total rewards in thousands (posting + curation)
+- Rewards: Total rewards (posting + curation)
 - % HP Delegated: Percentage of HP delegated to others
 - KE : Rewards-to-HP ratio
 - Last Power Down: Timestamp of the last power-down event (if any)
