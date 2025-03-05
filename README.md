@@ -29,17 +29,20 @@ pip install pandas argparse beem requests openpyxl
 ```
 
 ## Usage
-Command Line Arguments
+
+# Command Line Arguments
 To run the script, use the following command:
 
 ```bash
 python hive_user_stats.py <input_file> [--verified True|False] [--banned True|False] [--premium True|False]
+```
 
 <input_file>: Path to an Excel file that contains a column named Account with Hive usernames.
 --verified: Optional filter for users who are marked as verified (True/False).
 --banned: Optional filter for users who are marked as banned (True/False).
 --premium: Optional filter for users who are marked as premium (True/False).
-Example Usage
+
+## Example Usage
 bash
 Copiar
 Editar
