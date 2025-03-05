@@ -34,7 +34,7 @@ pip install pandas argparse beem requests openpyxl
 To run the script, use the following command:
 
 ```bash
-python hive_user_stats.py <input_file> [--verified True|False] [--banned True|False] [--premium True|False]
+python checking_users.py <input_file> [--verified True|False] [--banned True|False] [--premium True|False]
 ```
 
 <input_file>: Path to an Excel file that contains a column named Account with Hive usernames.
@@ -44,7 +44,7 @@ python hive_user_stats.py <input_file> [--verified True|False] [--banned True|Fa
 
 ## Example Usage
 ```bash
-python hive_user_stats.py users.xlsx --verified True --premium False
+python checking_users.py users.xlsx --verified True --premium False
 ```
 
 This command will process the usernames in users.xlsx, filtering for verified accounts that are not marked as premium.
