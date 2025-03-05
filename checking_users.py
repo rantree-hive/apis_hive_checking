@@ -45,10 +45,28 @@ def get_power_down(operations):
 
 def get_self_votes(username, votes):
     start_date = datetime.utcnow() - timedelta(days=30)
-    total_votes = sum(1 for op in votes if datetime.strptime(op["timestamp"], "%Y-%m-%dT%H:%M:%S") >= start_date and op["weight"] > 0)
-    self_votes = sum(1 for op in votes if op["voter"] == op["author"] and datetime.strptime(op["timestamp"], "%Y-%m-%dT%H:%M:%S") >= start_date and op["weight"] > 0)
+    total_votes = 0
+    self_votes = 0
 
-    return round((self_votes / total_votes) * 100, 2) if total_votes > 0 else 0
+    # Count self-votes in the last 30 days with weight > 0
+    for op in votes:
+        op_time = datetime.strptime(op["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+        if op_time < start_date:
+            break  # Stop when reaching votes older than 30 days
+
+        
+        if op["voter"] == username:
+            if op["weight"] > 0:  # Only count votes with weight > 0
+                total_votes += 1
+                if op["voter"] == op["author"]:  # Self-vote
+                    self_votes += 1
+
+# Calculate percentage
+    self_vote_percentage = 0
+    if self_votes > 0:
+        self_vote_percentage = (self_votes / total_votes) * 100
+    return (round(self_vote_percentage,2))
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Process user data and fetch statistics.")
@@ -104,7 +122,7 @@ def main():
                 hp_delegated = hive.vests_to_hp(vests_delegated) / 1_000_000
                 power_down = get_power_down(account.history_reverse(only_ops=["withdraw_vesting"],stop=datetime.utcnow() - timedelta(days=30),batch_size=500))
                 print ("powerdown done")
-                self_votes = get_self_votes(username, account.history_reverse(only_ops=["vote"],stop=datetime.utcnow() - timedelta(days=30),batch_size=500))
+                self_votes = get_self_votes(username, account.history_reverse(only_ops=["vote"],stop=datetime.utcnow() - timedelta(days=30)))
                 print ("Votes done")
                 percentage_hp_delegated = round((hp_delegated / hp) * 100, 2) if hp > 0 else 0
                 ke = round(rewards / hp, 2) if hp > 0 else 0
