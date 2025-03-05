@@ -4,9 +4,9 @@
 This script processes user data and fetches statistics for Hive users, including reputation, rewards, voting behavior, and more. It pulls data for users from an Excel file and generates a TSV report containing important statistics about each user, such as:
 
 - **HP (Hive Power)** and **Reputation**
-- **Rewards (in thousands)**
+- **Rewards**
 - **Percentage of HP Delegated**
-- **KE (Key Efficiency)**
+- **KE (Rewards/HP ratio)**
 - **Last Power Down Activity**
 - **Self-Vote Percentage (for posts and comments)**
 
