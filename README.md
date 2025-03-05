@@ -49,7 +49,7 @@ python hive_user_stats.py users.xlsx --verified True --premium False
 
 This command will process the usernames in users.xlsx, filtering for verified accounts that are not marked as premium.
 
-Input File Format
+#Input File Format
 The Excel file must contain a column named Account with the Hive usernames. Optionally, you can also include the following columns for filtering:
 
 - `Verified`: Whether the user is verified (True/False)
@@ -72,21 +72,21 @@ Username    HP      Reputation    Rewards    % HP Delegated    KE      Last Powe
 user1       1000    45.23         2500       15.00             2.5     2023-08-10T12:34:56  10.5
 user2       500     22.15         1500       30.00             3.0     None                12.3
 ```
-Functions
-get_rep(username)
+#Functions
+`get_rep(username)`
 Fetches the reputation, curation rewards, and vesting shares for a given username.
 
-get_vests_delegated(delegations)
+`get_vests_delegated(delegations)`
 Calculates the total vesting shares delegated to others by the user.
 
-get_power_down(operations)
+`get_power_down(operations)`
 Checks the last power-down activity for the user in the past 30 days and returns the timestamp of the most recent power-down.
 
-get_self_votes(username, votes)
+`get_self_votes(username, votes)`
 Calculates the percentage of self-votes made by the user in the past 30 days.
 
-parse_args()
+`parse_args()`
 Parses the command-line arguments and handles optional filters for the user data.
 
-main()
+`main()`
 The main function that reads the input file, processes user data, and writes the output to a TSV file.
