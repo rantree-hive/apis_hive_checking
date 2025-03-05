@@ -52,20 +52,20 @@ This command will process the usernames in users.xlsx, filtering for verified ac
 Input File Format
 The Excel file must contain a column named Account with the Hive usernames. Optionally, you can also include the following columns for filtering:
 
-Verified: Whether the user is verified (True/False)
-Banned: Whether the user is banned (True/False)
-Premium: Whether the user is premium (True/False)
+- `Verified`: Whether the user is verified (True/False)
+- `Banned`: Whether the user is banned (True/False)
+- `Premium`: Whether the user is premium (True/False)
 Output
 The script generates a TSV file (users_stats.tsv) containing the following columns for each user:
 
-Username: The Hive username
-HP: Hive Power
-Reputation: User reputation score
-Rewards: Total rewards in thousands (posting + curation)
-% HP Delegated: Percentage of HP delegated to others
-KE (Key Efficiency): Rewards-to-HP ratio
-Last Power Down: Timestamp of the last power-down event (if any)
-Self Votes (%): Percentage of self-votes in the user's posts/comments in the last 30 days
+- Username: The Hive username
+- HP: Hive Power
+- Reputation: User reputation score
+- Rewards: Total rewards in thousands (posting + curation)
+- % HP Delegated: Percentage of HP delegated to others
+- KE : Rewards-to-HP ratio
+- Last Power Down: Timestamp of the last power-down event (if any)
+- Self Votes (%): Percentage of self-votes in the user's posts/comments in the last 30 days
 Example Output
 ```plaintext
 Username    HP      Reputation    Rewards    % HP Delegated    KE      Last Power Down    Self Votes (%)
