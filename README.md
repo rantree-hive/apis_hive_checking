@@ -38,15 +38,15 @@ python hive_user_stats.py <input_file> [--verified True|False] [--banned True|Fa
 ```
 
 <input_file>: Path to an Excel file that contains a column named Account with Hive usernames.
-- --verified: Optional filter for users who are marked as verified (True/False).
-- --banned: Optional filter for users who are marked as banned (True/False).
-- --premium: Optional filter for users who are marked as premium (True/False).
+- `--verified`: Optional filter for users who are marked as verified (True/False).
+- `--banned`: Optional filter for users who are marked as banned (True/False).
+- `--premium`: Optional filter for users who are marked as premium (True/False).
 
-## Example Usage
-bash
-Copiar
-Editar
+# Example Usage
+```bash
 python hive_user_stats.py users.xlsx --verified True --premium False
+```
+
 This command will process the usernames in users.xlsx, filtering for verified accounts that are not marked as premium.
 
 Input File Format
@@ -67,12 +67,11 @@ KE (Key Efficiency): Rewards-to-HP ratio
 Last Power Down: Timestamp of the last power-down event (if any)
 Self Votes (%): Percentage of self-votes in the user's posts/comments in the last 30 days
 Example Output
-plaintext
-Copiar
-Editar
+```plaintext
 Username    HP      Reputation    Rewards    % HP Delegated    KE      Last Power Down    Self Votes (%)
 user1       1000    45.23         2500       15.00             2.5     2023-08-10T12:34:56  10.5
 user2       500     22.15         1500       30.00             3.0     None                12.3
+```
 Functions
 get_rep(username)
 Fetches the reputation, curation rewards, and vesting shares for a given username.
