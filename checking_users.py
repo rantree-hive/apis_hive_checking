@@ -7,6 +7,7 @@ import requests
 import json
 import math
 
+
 def get_rep(username):
     url = "https://api.openhive.network"
     headers = {"Content-Type": "application/json"}
@@ -33,40 +34,81 @@ def get_rep(username):
 def get_vests_delegated(delegations):
     return sum(int(d['vesting_shares']['amount']) for d in delegations)
 
-def get_power_down(operations):
-    start_date = datetime.utcnow() - timedelta(days=30)
-    for op in operations:
-        op_time = datetime.strptime(op["timestamp"], "%Y-%m-%dT%H:%M:%S")
 
-        if op_time < start_date:
-            break 
-        return op['timestamp']  # First occurrence is the latest
-    return None
+def get_power_down_api(username):
+    url = "https://api.hive.blog"
+    stop_time = datetime.utcnow() - timedelta(days=30)
+    last_trx_id = -1  # Start from the latest transaction
 
-def get_self_votes(username, votes):
+    while True:
+        
+        data = {
+            "jsonrpc": "2.0",
+            "method": "condenser_api.get_account_history",
+            "params": [username, last_trx_id, 1000],  # Fetch 1000 transactions per call
+            "id": 1
+        }
+        response = requests.post(url, json=data)
+        result = response.json()
+
+        if "result" not in result or not result["result"]:
+            
+            return None  # No more transactions available
+
+        for trx in reversed(result["result"]):
+            trx_id = trx[0]  # Transaction ID
+            op = trx[1]["op"]
+            timestamp = datetime.strptime(trx[1]["timestamp"], "%Y-%m-%dT%H:%M:%S")
+            if op[0] == "withdraw_vesting" or op[0] == "fill_vesting_withdraw":
+                #timestamp = datetime.strptime(trx[1]["timestamp"], "%Y-%m-%dT%H:%M:%S")
+                if timestamp >= stop_time:
+                    return timestamp  # Found a power-down within 30 days
+
+            if timestamp < stop_time:
+                
+                return None  # Stop if transactions are older than 30 days
+
+        last_trx_id = trx_id - 1  # Move to older transactions
+
+def get_self_votes(username):
+    url = "https://api.hive.blog"
     start_date = datetime.utcnow() - timedelta(days=30)
+    last_trx_id = -1  # Start from the latest transaction
     total_votes = 0
     self_votes = 0
 
-    # Count self-votes in the last 30 days with weight > 0
-    for op in votes:
-        op_time = datetime.strptime(op["timestamp"], "%Y-%m-%dT%H:%M:%S")
+    while True:
+        data = {
+            "jsonrpc": "2.0",
+            "method": "condenser_api.get_account_history",
+            "params": [username, last_trx_id, 1000],  # Fetch 1000 transactions per call
+            "id": 1
+        }
+        response = requests.post(url, json=data)
+        result = response.json()
 
-        if op_time < start_date:
-            break  # Stop when reaching votes older than 30 days
+        if "result" not in result or not result["result"]:
+            break  # No more transactions available
 
-        
-        if op["voter"] == username:
-            if op["weight"] > 0:  # Only count votes with weight > 0
-                total_votes += 1
-                if op["voter"] == op["author"]:  # Self-vote
-                    self_votes += 1
+        for trx in reversed(result["result"]):
+            trx_id = trx[0]  # Transaction ID
+            op = trx[1]["op"]
 
-# Calculate percentage
-    self_vote_percentage = 0
-    if self_votes > 0:
-        self_vote_percentage = (self_votes / total_votes) * 100
-    return (round(self_vote_percentage,2))
+            if op[0] == "vote":  # Check for vote operations
+                op_time = datetime.strptime(trx[1]["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+                if op_time < start_date:
+                    # Stop when reaching 30 days
+                    return round((self_votes / total_votes) * 100, 2) if total_votes > 0 else 0.0
+
+                if op[1]["voter"] == username and op[1]["weight"] > 0:  # Check vote weight
+                    total_votes += 1
+                    if op[1]["voter"] == op[1]["author"]:  # Self-vote
+                        self_votes += 1
+
+            last_trx_id = trx_id - 1  # Move to older transactions
+
+    return round((self_votes / total_votes) * 100, 2) if total_votes > 0 else 0.0
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Process user data and fetch statistics.")
@@ -120,16 +162,17 @@ def main():
                 vests_delegated = get_vests_delegated(account.get_vesting_delegations())
                 print ("delegations done")
                 hp_delegated = hive.vests_to_hp(vests_delegated) / 1_000_000
-                power_down = get_power_down(account.history_reverse(only_ops=["withdraw_vesting"],stop=datetime.utcnow() - timedelta(days=30),batch_size=500))
+                power_down = get_power_down_api(username)
+                
                 print ("powerdown done")
-                self_votes = get_self_votes(username, account.history_reverse(only_ops=["vote"],stop=datetime.utcnow() - timedelta(days=30)))
+                self_votes = get_self_votes(username)
                 print ("Votes done")
                 percentage_hp_delegated = round((hp_delegated / hp) * 100, 2) if hp > 0 else 0
                 ke = round(rewards / hp, 2) if hp > 0 else 0
 
                 outfile.write(f"{username}\t{hp}\t{rep}\t{rewards}\t{percentage_hp_delegated}\t{ke}\t{power_down}\t{self_votes}\n")
                 print(f"Processed: {username} - HP: {hp}, Rep: {rep}, KE: {ke}, Last Power Down: {power_down}, Self Vote %: {self_votes}")
-
+                
             except Exception as e:
                 print(f"Error processing {username}: {e}")
 
