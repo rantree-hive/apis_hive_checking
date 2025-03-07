@@ -76,6 +76,7 @@ def get_self_votes(username):
     last_trx_id = -1  # Start from the latest transaction
     total_votes = 0
     self_votes = 0
+    reached_30_days = False
 
     while True:
         data = {
@@ -92,6 +93,12 @@ def get_self_votes(username):
 
         for trx in reversed(result["result"]):
             trx_id = trx[0]  # Transaction ID
+            op_time = datetime.strptime(trx[1]["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+            if op_time < start_date:
+                reached_30_days = True  # We've reached transactions older than 30 days
+                break
+
             op = trx[1]["op"]
 
             if op[0] == "vote":  # Check for vote operations
@@ -105,8 +112,11 @@ def get_self_votes(username):
                     total_votes += 1
                     if op[1]["voter"] == op[1]["author"]:  # Self-vote
                         self_votes += 1
+                
 
             last_trx_id = trx_id - 1  # Move to older transactions
+        if reached_30_days:
+                break  # Stop fetching more transactions if we hit 30 days ago
 
     return round((self_votes / total_votes) * 100, 2) if total_votes > 0 else 0.0
 
@@ -128,17 +138,25 @@ def main():
     if 'Account' not in df.columns:
         print("Error: The Excel file must contain an 'Account' column.")
         sys.exit(1)
+    
+    df.columns = df.columns.str.strip().str.lower()
 
+# Define a mapping for case-insensitive column names
+    column_mapping = {
+    'verified': next((col for col in df.columns if col.lower() == 'verified'), None),
+    'banned': next((col for col in df.columns if col.lower() == 'banned'), None),
+    'premium': next((col for col in df.columns if col.lower() == 'premium'), None),
+    }
     # Filter users based on command-line arguments
-    if 'Verified' in df.columns:
-        df = df[df['Verified'] == (args.verified == 'True')]
-    if 'Banned' in df.columns:
-        df = df[df['Banned'] == (args.banned == 'True')]
-    if 'Premium' in df.columns:
-        df = df[df['Premium'] == (args.premium == 'True')]
-
-    usernames = df['Account'].dropna().astype(str).tolist()
-
+    if 'verified' in df.columns:
+        df = df[df['verified'] == (args.verified == 'True')]
+    if 'banned' in df.columns:
+        df = df[df['banned'] == (args.banned == 'True')]
+    if 'premium' in df.columns:
+        df = df[df['premium'] == (args.premium == 'True')]
+    
+    usernames = df['account'].dropna().astype(str).tolist()
+    
     hive = Hive(node=["https://api.openhive.network"])
 
     output_file = 'users_stats.tsv'
