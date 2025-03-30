@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import requests
 import json
 import math
+import sys
 
 
 def get_rep(username):
